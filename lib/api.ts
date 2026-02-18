@@ -1,4 +1,6 @@
+// src/lib/api.ts
 import axios from "axios";
+import { getToken } from "@/lib/auth";
 
 export const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
@@ -6,13 +8,15 @@ export const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
-  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+ 
+  const token = getToken();
 
   if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+    config.headers = config.headers ?? {};
+    (config.headers as any).Authorization = `Bearer ${token}`;
   }
 
-  // If sending FormData, let the browser set the correct multipart boundary
+  
   if (typeof FormData !== "undefined" && config.data instanceof FormData) {
     if (config.headers) {
       delete (config.headers as any)["Content-Type"];

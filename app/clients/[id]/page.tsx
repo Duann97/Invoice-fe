@@ -54,7 +54,7 @@ export default function ClientDetailPage() {
 
         const headers = { Authorization: `Bearer ${token}` };
 
-        // Ambil client + invoices client tsb
+        
         const [cRes, invRes] = await Promise.all([
           api.get(`/clients/${clientId}`, { headers }),
           api.get(`/invoices`, {
@@ -65,7 +65,7 @@ export default function ClientDetailPage() {
 
         setClient(cRes.data);
 
-        // invoices page kamu pakai res.data.data
+        
         const data = invRes.data?.data ?? [];
         setInvoices(Array.isArray(data) ? data : []);
       } catch (e: any) {
@@ -104,7 +104,7 @@ export default function ClientDetailPage() {
             Back
           </Link>
 
-          {/* quick action */}
+          
           <Link
             href={`/invoices/create?clientId=${clientId}`}
             className="rounded-xl bg-black px-4 py-2 text-sm font-medium text-white hover:opacity-90"

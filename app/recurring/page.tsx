@@ -45,7 +45,7 @@ export default function RecurringPage() {
 
   useEffect(() => {
     fetchData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    
   }, [active]);
 
   const count = useMemo(() => rules.length, [rules]);

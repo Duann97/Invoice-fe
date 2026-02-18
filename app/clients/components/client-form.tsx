@@ -87,7 +87,7 @@ export default function ClientForm() {
         <label className="text-sm font-medium">Address</label>
         <textarea
           name="address"
-          className="mt-1 w-full rounded-md border px-3 py-2 min-h-[90px]"
+          className="mt-1 w-full rounded-md border px-3 py-2 "
           placeholder="Jakarta"
           autoComplete="off"
         />
@@ -107,7 +107,7 @@ export default function ClientForm() {
         <label className="text-sm font-medium">Notes</label>
         <textarea
           name="notes"
-          className="mt-1 w-full rounded-md border px-3 py-2 min-h-[90px]"
+          className="mt-1 w-full rounded-md border px-3 py-2 "
           placeholder="PIC: Rina"
           autoComplete="off"
         />

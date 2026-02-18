@@ -45,7 +45,7 @@ export default function ClientsPage() {
           </Link>
         </div>
 
-        {/* Search */}
+        
         <div className="rounded-2xl border bg-white p-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-2 w-full md:max-w-md">
             <input
@@ -68,7 +68,7 @@ export default function ClientsPage() {
           </div>
         </div>
 
-        {/* Table */}
+        
         {loading ? (
           <div className="rounded-2xl border bg-white p-6 text-sm text-gray-600">
             Loading...

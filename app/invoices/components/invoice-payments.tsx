@@ -1,4 +1,4 @@
-// app/invoices/components/invoice-payments.tsx
+
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
@@ -14,7 +14,7 @@ function toNumber(v: any) {
 
 type Props = {
   invoiceId: string;
-  invoiceTotal?: string | number; // optional buat display paid summary
+  invoiceTotal?: string | number; 
 };
 
 export default function InvoicePayments({ invoiceId, invoiceTotal }: Props) {
@@ -42,9 +42,7 @@ export default function InvoicePayments({ invoiceId, invoiceTotal }: Props) {
         }
       );
 
-      // support 2 kemungkinan:
-      // A) { message, data: Payment[], meta }
-      // B) { message, data: { data: Payment[], meta } }
+      
       const raw = res.data?.data ?? res.data;
       const list = Array.isArray(raw)
         ? raw
@@ -69,7 +67,7 @@ export default function InvoicePayments({ invoiceId, invoiceTotal }: Props) {
 
   useEffect(() => {
     fetchPayments();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    
   }, [invoiceId]);
 
   const totalPaid = payments.reduce((s, p) => s + toNumber(p.amount), 0);

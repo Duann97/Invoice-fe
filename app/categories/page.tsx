@@ -76,7 +76,7 @@ export default function CategoriesPage() {
       const res = await api.get("/categories", {
         headers: authHeader(),
         params: {
-          // try multiple keys for compatibility
+         
           q: queryQ || undefined,
           search: queryQ || undefined,
           name: queryQ || undefined,
@@ -109,7 +109,7 @@ export default function CategoriesPage() {
     includeDeletedRef.current = false;
 
     fetchCategories({ q: "", includeDeleted: false });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    
   }, []);
 
   const onReset = () => {
@@ -165,7 +165,7 @@ export default function CategoriesPage() {
     }
   };
 
-  // FE fallback filtering (so UI always correct)
+  
   const filteredRows = useMemo(() => {
     const qq = normalize(q);
     const incDel = includeDeleted;
@@ -250,10 +250,10 @@ export default function CategoriesPage() {
         </div>
       </div>
 
-      {/* table */}
+      
       <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/5">
         <div className="overflow-x-auto">
-          {/* ✅ FIX: 40% / 20% / 40% => kolom Updated bener-bener di tengah table */}
+         
           <table className="min-w-full table-fixed text-left text-sm">
             <colgroup>
               <col className="w-[40%]" />

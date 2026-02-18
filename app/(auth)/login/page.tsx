@@ -28,9 +28,6 @@ export default function LoginPage() {
         return;
       }
 
-      // ✅ simpan ke 2 key biar konsisten:
-      // - auth.ts -> accessToken
-      // - api.ts interceptor -> token
       setToken(accessToken);
       if (typeof window !== "undefined") {
         localStorage.setItem("token", accessToken);
