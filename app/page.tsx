@@ -59,17 +59,8 @@ export default function HomePage() {
           <div className="md:col-span-2">
             <Pill>Invoice management untuk bisnis kecil & freelancer</Pill>
 
-            <h1 className="mt-6 text-4xl font-extrabold tracking-tight text-white md:text-6xl">
-              Buat invoice rapi,
-              <span className="block text-white/70">pantau pembayaran,</span>
-              <span className="block text-white/70">dan recurring otomatis.</span>
-            </h1>
-
-            <p className="mt-5 max-w-2xl text-base leading-relaxed text-white/70">
-              Kelola client, produk/layanan, invoice, pembayaran, dan recurring rule
-              dalam satu dashboard. Praktis buat operasional harian — tanpa ribet.
-            </p>
-
+           
+            
             <div className="mt-8 flex flex-wrap items-center gap-3">
               <Link
                 href="/login"
@@ -91,9 +82,7 @@ export default function HomePage() {
                 Lihat fitur
               </a>
 
-              <span className="text-xs text-white/50">
-                * Setelah login kamu langsung masuk dashboard
-              </span>
+              
             </div>
 
             <div className="mt-8 grid gap-3 sm:grid-cols-2">
