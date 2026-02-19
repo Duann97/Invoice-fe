@@ -95,7 +95,7 @@ export default function InvoiceDetailClient({ invoiceId }: { invoiceId: string }
 
   useEffect(() => {
     fetchInvoice();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    
   }, [invoiceId]);
 
   return (

@@ -95,12 +95,7 @@ export default function LoginPage() {
             </Link>
           </p>
 
-          <p className="text-center text-xs text-white/40">
-            Kembali ke{" "}
-            <Link href="/" className="underline">
-              Homepage
-            </Link>
-          </p>
+          
         </div>
       </form>
     </div>

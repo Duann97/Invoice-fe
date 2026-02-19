@@ -183,12 +183,7 @@ export default function ClientDetailPage() {
               {invoices.length === 0 ? (
                 <div className="text-sm text-gray-600">
                   Client ini belum punya invoice.{" "}
-                  <Link
-                    href={`/invoices/create?clientId=${clientId}`}
-                    className="underline"
-                  >
-                    Buat invoice pertama
-                  </Link>
+                  
                   .
                 </div>
               ) : (

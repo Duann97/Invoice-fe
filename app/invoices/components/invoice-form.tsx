@@ -60,14 +60,11 @@ const PAYMENT_TERMS_OPTIONS = [
   { value: "TRANSFER_BCA", label: "Transfer BCA" },
   { value: "TRANSFER_BRI", label: "Transfer BRI" },
   { value: "TRANSFER_BNI", label: "Transfer BNI" },
-  { value: "TRANSFER_MANDIRI", label: "Transfer Mandiri" },
-  { value: "TRANSFER_CIMB", label: "Transfer CIMB Niaga" },
-  { value: "TRANSFER_PERMATA", label: "Transfer Permata" },
+ 
   { value: "GOPAY", label: "GoPay" },
   { value: "OVO", label: "OVO" },
   { value: "DANA", label: "DANA" },
-  { value: "SHOPEEPAY", label: "ShopeePay" },
-  { value: "CASH", label: "Cash" },
+  
   { value: "OTHER", label: "Other" },
 ];
 

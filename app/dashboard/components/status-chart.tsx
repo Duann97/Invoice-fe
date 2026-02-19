@@ -14,8 +14,7 @@ type Props = {
   loading?: boolean;
 };
 
-// NOTE: recharts butuh warna; kalau kamu mau “no custom colors”, aku bisa buat versi tanpa Cell.
-// Tapi dashboard chart umumnya perlu pembeda warna biar kebaca.
+
 const COLORS = ["#111827", "#6B7280", "#9CA3AF", "#10B981", "#F59E0B", "#EF4444"];
 
 export default function StatusChart({ statusCounts, loading }: Props) {

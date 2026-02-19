@@ -76,12 +76,7 @@ export default function ClientsPage() {
         ) : clients.length === 0 ? (
           <div className="rounded-2xl border bg-white p-10 text-center">
             <p className="text-sm text-gray-600">Belum ada client.</p>
-            <Link
-              href="/clients/create"
-              className="inline-flex mt-4 rounded-md bg-black px-4 py-2 text-sm font-medium text-white hover:opacity-90"
-            >
-              + Create your first client
-            </Link>
+            
           </div>
         ) : (
           <div className="overflow-hidden rounded-2xl border bg-white">

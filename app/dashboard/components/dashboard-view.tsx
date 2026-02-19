@@ -139,7 +139,7 @@ export default function DashboardView() {
               Refresh
             </button>
 
-            {/* ✅ NEW: Recurring link */}
+            
             <Link
               href="/recurring"
               className="inline-flex items-center gap-2 rounded-lg border bg-white px-3 py-2 text-sm hover:bg-gray-50"
@@ -148,7 +148,7 @@ export default function DashboardView() {
               Recurring
             </Link>
 
-            {/* placeholder CTA */}
+            
             <Link
               href="#"
               className="inline-flex items-center gap-2 rounded-lg bg-black px-3 py-2 text-sm text-white hover:opacity-90"
@@ -175,7 +175,6 @@ export default function DashboardView() {
           </div>
         )}
 
-        {/* KPI cards */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <KpiCard
             title="Outstanding"
@@ -207,7 +206,7 @@ export default function DashboardView() {
           <EmptyState />
         ) : (
           <>
-            {/* chart + due soon */}
+            
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
               <div className="lg:col-span-2 rounded-2xl border bg-white p-5">
                 <div className="flex items-center justify-between">

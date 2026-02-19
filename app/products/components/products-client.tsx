@@ -125,9 +125,7 @@ export default function ProductsPage() {
       <div className="flex items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold">Products / Services</h1>
-          <p className="mt-1 text-sm text-white/60">
-            Kelola produk/jasa untuk dipakai di invoice item.
-          </p>
+          
         </div>
 
         <div className="flex items-center gap-2">
@@ -138,7 +136,7 @@ export default function ProductsPage() {
             + Create Product
           </Link>
           <Link
-            href="/products/categories"
+            href="/categories"
             className="rounded-xl border border-white/15 px-4 py-2 text-sm text-white/90"
           >
             Manage Categories

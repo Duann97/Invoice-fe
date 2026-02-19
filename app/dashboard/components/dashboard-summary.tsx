@@ -6,7 +6,7 @@ import { api } from "@/lib/api";
 import { getToken, clearToken } from "@/lib/auth";
 
 type DashboardSummaryResponse = any; 
-// ✅ biar ga konflik: nanti kamu boleh rapihin tipe sesuai response backend kamu
+
 
 export default function DashboardSummary() {
   const router = useRouter();
@@ -19,7 +19,7 @@ export default function DashboardSummary() {
   }, []);
 
   useEffect(() => {
-    // ✅ guard simple: kalau ga ada token -> balik ke login
+    
     const token = getToken();
     if (!token) {
       router.replace("/login");
@@ -36,7 +36,7 @@ export default function DashboardSummary() {
         const msg = err?.response?.data?.message || err?.message || "Gagal load dashboard.";
         setError(msg);
 
-        // ✅ kalau token invalid, clear lalu balik login
+        
         if (err?.response?.status === 401) {
           clearToken();
           router.replace("/login");

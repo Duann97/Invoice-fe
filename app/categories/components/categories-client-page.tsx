@@ -79,7 +79,7 @@ export default function CategoriesClientPage() {
 
   useEffect(() => {
     fetchCategories();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    
   }, [includeDeleted]);
 
   const onSoftDelete = async (id: string) => {
@@ -111,9 +111,7 @@ export default function CategoriesClientPage() {
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold">Categories</h1>
-          <p className="mt-1 text-sm text-gray-600">
-            Dipakai untuk grouping Product/Service (dan nanti invoice item).
-          </p>
+         
         </div>
 
         <Link

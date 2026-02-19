@@ -71,7 +71,7 @@ export default function InvoiceDetailPage() {
 
   const [inv, setInv] = useState<InvoiceDetail | null>(null);
 
-  // create payment form state
+
   const [amount, setAmount] = useState<string>("");
   const [paidAt, setPaidAt] = useState<string>("");
   const [method, setMethod] = useState<string>("TRANSFER");
@@ -115,12 +115,12 @@ export default function InvoiceDetailPage() {
 
   useEffect(() => {
     fetchDetail();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    
   }, [id]);
 
   const status = (inv?.status ?? "").toUpperCase();
   const isPaid = status === "PAID";
-  // ✅ OVERDUE dianggap sudah terkirim (sent-like)
+ 
   const isSentOrPaid = status === "SENT" || status === "PAID" || status === "OVERDUE";
 
   const totalPaid = useMemo(() => {
@@ -141,7 +141,7 @@ export default function InvoiceDetailPage() {
     }
     if (!id) return;
 
-    // guard FE: kalau SENT/PAID/OVERDUE, jangan send lagi
+    
     if (isSentOrPaid) return;
 
     try {

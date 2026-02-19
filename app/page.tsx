@@ -57,7 +57,7 @@ export default function HomePage() {
       <section className="mx-auto max-w-6xl px-4 pb-14 pt-16 md:pt-20">
         <div className="grid items-center gap-10 md:grid-cols-2">
           <div className="md:col-span-2">
-            <Pill>Invoice management untuk bisnis kecil & freelancer</Pill>
+            <Pill>Invoice management untuk bisnis & UMKM</Pill>
 
             <h1 className="mt-6 text-4xl font-extrabold tracking-tight text-white md:text-6xl">
               Invoice App,
@@ -68,18 +68,7 @@ export default function HomePage() {
             
 
             <div className="mt-8 flex flex-wrap items-center gap-3">
-              <Link
-                href="/login"
-                className="rounded-full bg-white px-6 py-3 text-sm font-semibold text-black hover:bg-white/90"
-              >
-                Login
-              </Link>
-              <Link
-                href="/register"
-                className="rounded-full border border-white/15 bg-white/5 px-6 py-3 text-sm font-semibold text-white hover:bg-white/10"
-              >
-                Register
-              </Link>
+             
 
               <a
                 href="#fitur"

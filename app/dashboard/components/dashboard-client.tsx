@@ -156,17 +156,17 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen w-full">
       <div className="mx-auto w-full max-w-6xl px-4 py-6">
-        {/* HERO BANNER (✅ lebih gede ~40% layar) */}
+        
         <section
           className={[
             "relative overflow-hidden rounded-[36px] border border-white/10 bg-[#070B14]",
-            "h-[40vh] ",
+            "h-[60vh] ",
           ].join(" ")}
         >
-          {/* background */}
+          
           <div className="pointer-events-none absolute inset-0">
             <Image
-              src="/invoicebanner.png"
+              src="/dashboard-hero.svg"
               alt="Dashboard hero"
               fill
               className="object-cover"
@@ -189,7 +189,7 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* KPI */}
+        
         <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-4">
           <GlassCard className="p-5">
             <div className="text-xs text-white/60">Outstanding</div>
