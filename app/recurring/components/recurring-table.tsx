@@ -55,7 +55,7 @@ export default function RecurringTable({
               <td className="px-4 py-3">
                 <span
                   className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ${
-                    r.isActive ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-700"
+                    r.isActive ? "bg-green-100 text-green-700" : "bg-black text-white"
                   }`}
                 >
                   {r.isActive ? "ACTIVE" : "INACTIVE"}
