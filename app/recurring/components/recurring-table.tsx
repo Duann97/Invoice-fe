@@ -13,12 +13,7 @@ export default function RecurringTable({
     return (
       <div className="rounded-2xl border bg-white p-10 text-center">
         <p className="text-sm text-gray-600">No recurring rules.</p>
-        <Link
-          href="/recurring/create"
-          className="inline-flex mt-4 rounded-md bg-black px-4 py-2 text-sm font-medium text-white hover:opacity-90"
-        >
-          + Create your first recurring rule
-        </Link>
+        
       </div>
     );
   }
