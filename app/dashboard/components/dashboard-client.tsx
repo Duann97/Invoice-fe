@@ -94,6 +94,26 @@ function GlassCard({
   );
 }
 
+/**
+ * Parse date string safely.
+ * - If backend sends "YYYY-MM-DD", new Date("YYYY-MM-DD") can shift timezone.
+ * - We'll treat "YYYY-MM-DD" as local date start to avoid off-by-one day.
+ */
+function parseDateSafe(input: string) {
+  if (!input) return new Date(NaN);
+
+  const s = String(input).trim();
+
+  // YYYY-MM-DD (no time)
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) {
+    const [y, m, d] = s.split("-").map((x) => Number(x));
+    return new Date(y, (m || 1) - 1, d || 1, 0, 0, 0, 0);
+  }
+
+  const d = new Date(s);
+  return d;
+}
+
 export default function DashboardPage() {
   const router = useRouter();
 
@@ -102,6 +122,9 @@ export default function DashboardPage() {
   const [errMsg, setErrMsg] = useState<string | null>(null);
 
   const token = useMemo(() => getToken(), []);
+
+  // keep FE logic consistent with params you send
+  const DUE_SOON_DAYS = 7;
 
   const fetchSummary = async () => {
     setErrMsg(null);
@@ -114,7 +137,7 @@ export default function DashboardPage() {
         },
         params: {
           limit: 5,
-          dueSoonDays: 7,
+          dueSoonDays: DUE_SOON_DAYS,
           monthOffset: 0,
         },
       });
@@ -146,24 +169,78 @@ export default function DashboardPage() {
 
   const kpis = data?.kpis;
 
+  // ✅ FIX: kalau dueSoonInvoices dari backend kosong, hitung dari recentInvoices (fallback)
+  const derivedDueSoonInvoices = useMemo(() => {
+    if (!data) return [];
+
+    const backendList = Array.isArray(data.dueSoonInvoices)
+      ? data.dueSoonInvoices
+      : [];
+
+    // kalau backend sudah ngasih, pakai itu
+    if (backendList.length > 0) return backendList;
+
+    const recent = Array.isArray(data.recentInvoices) ? data.recentInvoices : [];
+
+    const now = new Date();
+    const start = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+      0,
+      0,
+      0,
+      0,
+    );
+    const end = new Date(start);
+    end.setDate(end.getDate() + DUE_SOON_DAYS);
+
+    // tampilkan yang due antara hari ini..7 hari ke depan
+    // dan biasanya yang masuk "due soon" bukan PAID/CANCELLED
+    const filtered = recent
+      .filter((inv) => {
+        const due = parseDateSafe(inv.dueDate);
+        if (Number.isNaN(due.getTime())) return false;
+
+        const status = String(inv.status || "").toUpperCase();
+        if (status === "PAID" || status === "CANCELLED") return false;
+
+        return due >= start && due <= end;
+      })
+      // urutkan yang paling dekat dulu
+      .sort((a, b) => {
+        const da = parseDateSafe(a.dueDate).getTime();
+        const db = parseDateSafe(b.dueDate).getTime();
+        return da - db;
+      })
+      // samakan shape dengan dueSoonInvoices
+      .map((inv) => ({
+        id: inv.id,
+        invoiceNumber: inv.invoiceNumber,
+        dueDate: inv.dueDate,
+        total: inv.total,
+        client: inv.client ?? null,
+      }));
+
+    return filtered;
+  }, [data]);
+
   const hasAny =
     !!data &&
     ((data.recentInvoices?.length ?? 0) > 0 ||
       (data.recentPayments?.length ?? 0) > 0 ||
-      (data.dueSoonInvoices?.length ?? 0) > 0 ||
+      (derivedDueSoonInvoices?.length ?? 0) > 0 ||
       toNumber(kpis?.invoicesThisMonth) > 0);
 
   return (
     <div className="min-h-screen w-full">
       <div className="mx-auto w-full max-w-6xl px-4 py-6">
-        
         <section
           className={[
             "relative overflow-hidden rounded-[36px] border border-white/10 bg-[#070B14]",
             "h-[60vh] ",
           ].join(" ")}
         >
-          
           <div className="pointer-events-none absolute inset-0">
             <Image
               src="/dashboard-hero.svg"
@@ -189,14 +266,12 @@ export default function DashboardPage() {
           </div>
         )}
 
-        
         <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-4">
           <GlassCard className="p-5">
             <div className="text-xs text-white/60">Outstanding</div>
             <div className="mt-2 text-2xl font-semibold text-white">
               {formatIDR(toNumber(kpis?.totalOutstanding))}
             </div>
-            
           </GlassCard>
 
           <GlassCard className="p-5">
@@ -204,7 +279,6 @@ export default function DashboardPage() {
             <div className="mt-2 text-2xl font-semibold text-white">
               {formatIDR(toNumber(kpis?.totalPaidThisMonth))}
             </div>
-            
           </GlassCard>
 
           <GlassCard className="p-5">
@@ -212,7 +286,6 @@ export default function DashboardPage() {
             <div className="mt-2 text-2xl font-semibold text-white">
               {toNumber(kpis?.invoicesThisMonth)}
             </div>
-           
           </GlassCard>
 
           <GlassCard className="p-5">
@@ -220,7 +293,6 @@ export default function DashboardPage() {
             <div className="mt-2 text-2xl font-semibold text-white">
               {toNumber(kpis?.overdueCount)}
             </div>
-            
           </GlassCard>
         </div>
 
@@ -233,9 +305,7 @@ export default function DashboardPage() {
                 <div className="text-base font-semibold text-white/90">
                   Invoices terbaru
                 </div>
-                
               </div>
-              
             </div>
 
             <div className="mt-4 space-y-3">
@@ -257,7 +327,9 @@ export default function DashboardPage() {
                           {inv.invoiceNumber}
                         </div>
                         <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-white/60">
-                          <span className="truncate">{inv.client?.name || "-"}</span>
+                          <span className="truncate">
+                            {inv.client?.name || "-"}
+                          </span>
                           <span className="text-white/30">•</span>
                           <Badge status={inv.status} />
                         </div>
@@ -279,14 +351,14 @@ export default function DashboardPage() {
                 <div className="text-base font-semibold text-white/90">
                   Payments terbaru
                 </div>
-                
               </div>
-              
             </div>
 
             <div className="mt-4 space-y-3">
               {!data || (data.recentPayments?.length ?? 0) === 0 ? (
-                <div className="text-sm text-white/60">Belum ada pembayaran.</div>
+                <div className="text-sm text-white/60">
+                  Belum ada pembayaran.
+                </div>
               ) : (
                 data.recentPayments.map((p) => (
                   <div
@@ -322,19 +394,16 @@ export default function DashboardPage() {
                 <div className="text-base font-semibold text-white/90">
                   Jatuh tempo segera
                 </div>
-               
               </div>
-              
-             
             </div>
 
             <div className="mt-4 space-y-3">
-              {!data || (data.dueSoonInvoices?.length ?? 0) === 0 ? (
+              {!data || (derivedDueSoonInvoices?.length ?? 0) === 0 ? (
                 <div className="text-sm text-white/60">
                   Tidak ada invoice jatuh tempo dalam 7 hari.
                 </div>
               ) : (
-                data.dueSoonInvoices.map((inv) => (
+                derivedDueSoonInvoices.map((inv) => (
                   <Link
                     key={inv.id}
                     href={`/invoices/${inv.id}`}
@@ -350,7 +419,7 @@ export default function DashboardPage() {
                         </div>
                         <div className="text-xs text-white/60">
                           {inv.client?.name || "-"} •{" "}
-                          {new Date(inv.dueDate).toLocaleDateString("id-ID")}
+                          {parseDateSafe(inv.dueDate).toLocaleDateString("id-ID")}
                         </div>
                       </div>
                       <div className="text-sm font-semibold text-white">
