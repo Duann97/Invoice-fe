@@ -553,9 +553,7 @@ export default function InvoiceDetailPage() {
           </form>
         ) : (
           <div className="rounded-2xl border border-white/10 bg-black/20 p-4 text-sm text-white/80">
-            Payment hanya bisa dibuat untuk invoice{" "}
-            <span className="font-semibold">DRAFT</span> atau{" "}
-            <span className="font-semibold">SENT</span>.
+            
           </div>
         )}
 
