@@ -110,8 +110,7 @@ function parseDateSafe(input: string) {
     return new Date(y, (m || 1) - 1, d || 1, 0, 0, 0, 0);
   }
 
-  const d = new Date(s);
-  return d;
+  return new Date(s);
 }
 
 export default function DashboardPage() {
@@ -169,6 +168,41 @@ export default function DashboardPage() {
 
   const kpis = data?.kpis;
 
+  // ✅ FIX: overdue fallback dari recentInvoices
+  const derivedOverdueCount = useMemo(() => {
+    const backend = toNumber(kpis?.overdueCount);
+    if (!data) return backend;
+
+    const recent = Array.isArray(data.recentInvoices) ? data.recentInvoices : [];
+    if (recent.length === 0) return backend;
+
+    const now = new Date();
+    const todayStart = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+      0,
+      0,
+      0,
+      0,
+    );
+
+    const computed = recent.filter((inv) => {
+      const status = String(inv.status || "").toUpperCase();
+      if (status === "PAID" || status === "CANCELLED") return false;
+
+      const due = parseDateSafe(inv.dueDate);
+      if (Number.isNaN(due.getTime())) return false;
+
+      // overdue = dueDate < todayStart
+      return due.getTime() < todayStart.getTime();
+    }).length;
+
+    // kalau backend sudah ada nilainya dan lebih besar, pakai backend
+    // kalau backend 0 tapi computed > 0, pakai computed (biar kasus kamu kebaca)
+    return Math.max(backend, computed);
+  }, [data, kpis?.overdueCount]);
+
   // ✅ FIX: kalau dueSoonInvoices dari backend kosong, hitung dari recentInvoices (fallback)
   const derivedDueSoonInvoices = useMemo(() => {
     if (!data) return [];
@@ -177,7 +211,6 @@ export default function DashboardPage() {
       ? data.dueSoonInvoices
       : [];
 
-    // kalau backend sudah ngasih, pakai itu
     if (backendList.length > 0) return backendList;
 
     const recent = Array.isArray(data.recentInvoices) ? data.recentInvoices : [];
@@ -195,8 +228,6 @@ export default function DashboardPage() {
     const end = new Date(start);
     end.setDate(end.getDate() + DUE_SOON_DAYS);
 
-    // tampilkan yang due antara hari ini..7 hari ke depan
-    // dan biasanya yang masuk "due soon" bukan PAID/CANCELLED
     const filtered = recent
       .filter((inv) => {
         const due = parseDateSafe(inv.dueDate);
@@ -207,13 +238,11 @@ export default function DashboardPage() {
 
         return due >= start && due <= end;
       })
-      // urutkan yang paling dekat dulu
       .sort((a, b) => {
         const da = parseDateSafe(a.dueDate).getTime();
         const db = parseDateSafe(b.dueDate).getTime();
         return da - db;
       })
-      // samakan shape dengan dueSoonInvoices
       .map((inv) => ({
         id: inv.id,
         invoiceNumber: inv.invoiceNumber,
@@ -291,7 +320,7 @@ export default function DashboardPage() {
           <GlassCard className="p-5">
             <div className="text-xs text-white/60">Overdue</div>
             <div className="mt-2 text-2xl font-semibold text-white">
-              {toNumber(kpis?.overdueCount)}
+              {derivedOverdueCount}
             </div>
           </GlassCard>
         </div>
@@ -419,7 +448,9 @@ export default function DashboardPage() {
                         </div>
                         <div className="text-xs text-white/60">
                           {inv.client?.name || "-"} •{" "}
-                          {parseDateSafe(inv.dueDate).toLocaleDateString("id-ID")}
+                          {parseDateSafe(inv.dueDate).toLocaleDateString(
+                            "id-ID",
+                          )}
                         </div>
                       </div>
                       <div className="text-sm font-semibold text-white">
