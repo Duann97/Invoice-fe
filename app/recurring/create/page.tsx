@@ -38,6 +38,8 @@ export default function CreateRecurringPage() {
     frequency: "MONTHLY",
     interval: 1,
     startAt: "",
+    nextRunAt: "",
+    endAt: "",
     isActive: true,
   });
 
@@ -116,7 +118,9 @@ export default function CreateRecurringPage() {
         isActive: Boolean(form.isActive),
       };
 
-      // ✅ nextRunAt & endAt dihilangkan (opsional, backend akan default nextRunAt=startAt)
+      if (form.nextRunAt) payload.nextRunAt = new Date(form.nextRunAt).toISOString();
+      if (form.endAt) payload.endAt = new Date(form.endAt).toISOString();
+
       await api.post("/recurring", payload, { headers });
 
       router.push("/recurring");
@@ -232,14 +236,36 @@ export default function CreateRecurringPage() {
             </div>
           </div>
 
-          <div>
-            <label className="text-sm font-medium">Start At</label>
-            <input
-              type="datetime-local"
-              className="mt-1 w-full rounded border p-2 text-sm"
-              value={form.startAt}
-              onChange={(e) => setForm({ ...form, startAt: e.target.value })}
-            />
+          <div className="grid grid-cols-1 gap-3">
+            <div>
+              <label className="text-sm font-medium">Start At</label>
+              <input
+                type="datetime-local"
+                className="mt-1 w-full rounded border p-2 text-sm"
+                value={form.startAt}
+                onChange={(e) => setForm({ ...form, startAt: e.target.value })}
+              />
+            </div>
+
+            <div>
+              <label className="text-sm font-medium">Next Run At </label>
+              <input
+                type="datetime-local"
+                className="mt-1 w-full rounded border p-2 text-sm"
+                value={form.nextRunAt}
+                onChange={(e) => setForm({ ...form, nextRunAt: e.target.value })}
+              />
+            </div>
+
+            <div>
+              <label className="text-sm font-medium">End At </label>
+              <input
+                type="datetime-local"
+                className="mt-1 w-full rounded border p-2 text-sm"
+                value={form.endAt}
+                onChange={(e) => setForm({ ...form, endAt: e.target.value })}
+              />
+            </div>
           </div>
 
           <label className="flex items-center gap-2 text-sm">
