@@ -20,7 +20,7 @@ export default function RegisterForm() {
 
   const form = useForm<RegisterSchema>({
     resolver: zodResolver(registerSchema),
-    defaultValues: { email: "", password: "", fullName: "" },
+    defaultValues: { email: "", password: ""},
   });
 
   const onSubmit = async (values: RegisterSchema) => {
@@ -34,9 +34,7 @@ export default function RegisterForm() {
       };
 
       // hanya kirim fullName kalau ada
-      if (values.fullName && values.fullName.trim().length > 0) {
-        payload.fullName = values.fullName.trim();
-      }
+    
 
       const res = await api.post<RegisterResponse>("/auth/register", payload);
 
@@ -60,19 +58,8 @@ export default function RegisterForm() {
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-      <div>
-        <label className="block text-sm font-medium">Nama (opsional)</label>
-        <input
-          className="mt-1 w-full rounded-md border px-3 py-2"
-          placeholder="Duan"
-          {...form.register("fullName")}
-        />
-        {form.formState.errors.fullName && (
-          <p className="mt-1 text-sm text-red-600">
-            {form.formState.errors.fullName.message}
-          </p>
-        )}
-      </div>
+      
+      
 
       <div>
         <label className="block text-sm font-medium">Email</label>
