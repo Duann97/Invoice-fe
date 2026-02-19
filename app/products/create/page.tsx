@@ -156,7 +156,7 @@ export default function CreateProductPage() {
 
             <div className="grid gap-4 md:grid-cols-2">
               <div>
-                <label className="text-sm font-medium text-white/90">Harga (IDR)</label>
+                <label className="text-sm font-medium text-white/90">Harga</label>
                 <input
                   type="number"
                   className="mt-1 w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-white placeholder:text-white/40 outline-none focus:border-white/20"

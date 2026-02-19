@@ -16,7 +16,6 @@ type ProductRow = {
   category?: { id: string; name: string } | null;
   categoryId?: string | null;
 
-  // soft delete info (biar filter includeDeleted tetap bisa dipakai)
   isDeleted?: boolean;
   deletedAt?: string | null;
 };
@@ -102,6 +101,27 @@ export default function ProductsPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token, qs.toString()]);
 
+  // ✅ IMPORTANT: refetch kalau user balik ke tab / balik dari halaman edit (browser back)
+  useEffect(() => {
+    const onFocus = () => {
+      // jangan ganggu kalau lagi loading awal
+      fetchData();
+    };
+
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") fetchData();
+    };
+
+    window.addEventListener("focus", onFocus);
+    document.addEventListener("visibilitychange", onVisibility);
+
+    return () => {
+      window.removeEventListener("focus", onFocus);
+      document.removeEventListener("visibilitychange", onVisibility);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [qs.toString(), token]);
+
   const onChangeQuery = (patch: (sp: URLSearchParams) => void) => {
     const sp = new URLSearchParams(qs.toString());
     patch(sp);
@@ -125,7 +145,6 @@ export default function ProductsPage() {
       <div className="flex items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold">Products / Services</h1>
-          
         </div>
 
         <div className="flex items-center gap-2">
@@ -150,9 +169,6 @@ export default function ProductsPage() {
         </div>
       ) : null}
 
-      {/* ✅ KPI cards dihapus sesuai request */}
-
-      {/* Filters */}
       <div className="mt-6 rounded-3xl border border-white/10 bg-black/20 p-5">
         <div className="grid gap-4 md:grid-cols-3 md:items-end">
           <div>
@@ -211,7 +227,6 @@ export default function ProductsPage() {
         </div>
       </div>
 
-      {/* Table */}
       <div className="mt-6 overflow-x-auto rounded-3xl border border-white/10 bg-black/20">
         {loading ? (
           <div className="p-6 text-sm text-white/70">Loading...</div>
@@ -225,7 +240,6 @@ export default function ProductsPage() {
                 <th className="py-3 px-4">Category</th>
                 <th className="py-3 px-4 text-center">Unit</th>
                 <th className="py-3 px-4 text-right">Price</th>
-                {/* ✅ Status column dihapus */}
                 <th className="py-3 px-4 text-right">Action</th>
               </tr>
             </thead>
@@ -240,9 +254,7 @@ export default function ProductsPage() {
                     ) : null}
                   </td>
 
-                  <td className="py-3 px-4">
-                    {p.category?.name || "-"}
-                  </td>
+                  <td className="py-3 px-4">{p.category?.name || "-"}</td>
 
                   <td className="py-3 px-4 text-center">{p.unit || "pcs"}</td>
 

@@ -197,7 +197,7 @@ export default function ProductForm(props: ProductFormProps) {
         </div>
 
         <div>
-          <label className="block text-sm font-medium">Harga (IDR)</label>
+          <label className="block text-sm font-medium">Harga </label>
           <input
             type="number"
             className="mt-1 w-full rounded-md border px-3 py-2"
@@ -214,7 +214,7 @@ export default function ProductForm(props: ProductFormProps) {
         </div>
 
         <div>
-          <label className="block text-sm font-medium">Unit (opsional)</label>
+          <label className="block text-sm font-medium">Unit </label>
           <input
             className="mt-1 w-full rounded-md border px-3 py-2"
             placeholder="project / pcs / hour"
@@ -228,7 +228,7 @@ export default function ProductForm(props: ProductFormProps) {
         </div>
 
         <div className="md:col-span-2">
-          <label className="block text-sm font-medium">Category (opsional)</label>
+          <label className="block text-sm font-medium">Category </label>
           <select
             className="mt-1 w-full rounded-md border px-3 py-2"
             {...form.register("categoryId")}
