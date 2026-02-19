@@ -377,7 +377,7 @@ export default function EditProductPage() {
                   value={price}
                   onChange={(e) => setPrice(e.target.value)}
                   className="mt-2 h-11 w-full rounded-xl border border-white/10 bg-black/20 px-4 text-sm text-white outline-none focus:border-white/20"
-                  placeholder="1000000"
+                  
                   inputMode="numeric"
                 />
               </div>

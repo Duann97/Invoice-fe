@@ -126,7 +126,7 @@ export default function PaymentForm({ invoiceId, maxAmount, onCreated }: Props) 
         <input
           type="number"
           className="w-full rounded-xl border px-3 py-2"
-          placeholder="50000"
+          
           max={maxAmount !== undefined ? maxAmount : undefined}
           // ✅ pastiin input jadi number di RHF
           {...form.register("amount", { valueAsNumber: true })}

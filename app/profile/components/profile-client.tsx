@@ -25,6 +25,13 @@ function isAxiosUnauthorized(err: any) {
   return err?.response?.status === 401;
 }
 
+// ✅ helper: kalau server ngasih kosong/null/undefined, pakai fallback (nilai input user)
+function preferText(serverValue: any, fallback: string) {
+  if (serverValue === undefined || serverValue === null) return fallback;
+  const s = String(serverValue);
+  return s.trim() === "" ? fallback : s;
+}
+
 export default function ProfilePage() {
   const router = useRouter();
   const token = useMemo(() => getToken(), []);
@@ -180,14 +187,24 @@ export default function ProfilePage() {
         });
 
         const updated = res.data?.data ?? res.data;
-        setProfile(updated);
+
+        // ✅ SAFE MERGE: kalau server balikin kosong, jangan overwrite input user
+        const merged = {
+          ...(profile ?? {}),
+          ...(updated ?? {}),
+          fullName: preferText(updated?.fullName, fullName.trim()),
+          companyName: preferText(updated?.companyName, companyName.trim()),
+          address: preferText(updated?.address, address.trim()),
+          avatarUrl: preferText(updated?.avatarUrl, avatarUrl),
+        };
+
+        setProfile(merged);
         setInfo(res.data?.message ?? "Profile berhasil diupdate.");
 
-        // reset snapshot + file
-        const updatedFullName = (updated?.fullName ?? fullName).toString();
-        const updatedCompanyName = (updated?.companyName ?? companyName).toString();
-        const updatedAddress = (updated?.address ?? address).toString();
-        const updatedAvatarUrl = (updated?.avatarUrl ?? "").toString();
+        const updatedFullName = (merged?.fullName ?? "").toString();
+        const updatedCompanyName = (merged?.companyName ?? "").toString();
+        const updatedAddress = (merged?.address ?? "").toString();
+        const updatedAvatarUrl = (merged?.avatarUrl ?? "").toString();
 
         setFullName(updatedFullName);
         setCompanyName(updatedCompanyName);
@@ -217,13 +234,24 @@ export default function ProfilePage() {
       });
 
       const updated = res.data?.data ?? res.data;
-      setProfile(updated);
+
+      // ✅ SAFE MERGE (ini yang bikin address gak ilang)
+      const merged = {
+        ...(profile ?? {}),
+        ...(updated ?? {}),
+        fullName: preferText(updated?.fullName, payload.fullName),
+        companyName: preferText(updated?.companyName, payload.companyName),
+        address: preferText(updated?.address, payload.address),
+        avatarUrl: preferText(updated?.avatarUrl, avatarUrl),
+      };
+
+      setProfile(merged);
       setInfo(res.data?.message ?? "Profile berhasil diupdate.");
 
-      const updatedFullName = (updated?.fullName ?? fullName).toString();
-      const updatedCompanyName = (updated?.companyName ?? companyName).toString();
-      const updatedAddress = (updated?.address ?? address).toString();
-      const updatedAvatarUrl = (updated?.avatarUrl ?? avatarUrl).toString();
+      const updatedFullName = (merged?.fullName ?? "").toString();
+      const updatedCompanyName = (merged?.companyName ?? "").toString();
+      const updatedAddress = (merged?.address ?? "").toString();
+      const updatedAvatarUrl = (merged?.avatarUrl ?? "").toString();
 
       setFullName(updatedFullName);
       setCompanyName(updatedCompanyName);

@@ -58,7 +58,7 @@ export default function InvoicesFilters({ clients }: { clients: Client[] }) {
             value={q}
             onChange={(e) => setQ(e.target.value)}
             className="mt-1 w-full rounded-xl border px-3 py-2 text-sm"
-            placeholder="INV-001 / PT Sinar..."
+            
           />
         </div>
 

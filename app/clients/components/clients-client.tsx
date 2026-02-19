@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import Link from "next/link";
 import { getClients, type ClientItem } from "@/lib/clients";
 
@@ -9,7 +9,7 @@ export default function ClientsPage() {
   const [clients, setClients] = useState<ClientItem[]>([]);
   const [q, setQ] = useState("");
 
-  const fetchData = async (keyword?: string) => {
+  const fetchData = useCallback(async (keyword?: string) => {
     setLoading(true);
     try {
       const data = await getClients(keyword);
@@ -18,11 +18,27 @@ export default function ClientsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [fetchData]);
+
+  // ✅ Debounce search: ketik langsung filter (tanpa harus klik Search)
+  const firstRun = useRef(true);
+  useEffect(() => {
+    // biar tidak double-fetch barengan dengan initial fetchData()
+    if (firstRun.current) {
+      firstRun.current = false;
+      return;
+    }
+
+    const t = setTimeout(() => {
+      fetchData(q.trim() || undefined);
+    }, 400);
+
+    return () => clearTimeout(t);
+  }, [q, fetchData]);
 
   const filteredCount = useMemo(() => clients.length, [clients]);
 
@@ -45,7 +61,6 @@ export default function ClientsPage() {
           </Link>
         </div>
 
-        
         <div className="rounded-2xl border bg-white p-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-2 w-full md:max-w-md">
             <input
@@ -54,12 +69,7 @@ export default function ClientsPage() {
               className="w-full rounded-md border px-3 py-2 text-sm"
               placeholder="Search name / email / phone..."
             />
-            <button
-              onClick={() => fetchData(q.trim() || undefined)}
-              className="rounded-md bg-black px-4 py-2 text-sm font-medium text-white hover:opacity-90"
-            >
-              Search
-            </button>
+           
           </div>
 
           <div className="text-sm text-gray-600">
@@ -68,7 +78,6 @@ export default function ClientsPage() {
           </div>
         </div>
 
-        
         {loading ? (
           <div className="rounded-2xl border bg-white p-6 text-sm text-gray-600">
             Loading...
@@ -76,7 +85,6 @@ export default function ClientsPage() {
         ) : clients.length === 0 ? (
           <div className="rounded-2xl border bg-white p-10 text-center">
             <p className="text-sm text-gray-600">Belum ada client.</p>
-            
           </div>
         ) : (
           <div className="overflow-hidden rounded-2xl border bg-white">

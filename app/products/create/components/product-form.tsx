@@ -171,7 +171,7 @@ export default function ProductForm(props: ProductFormProps) {
           <label className="block text-sm font-medium">Nama</label>
           <input
             className="mt-1 w-full rounded-md border px-3 py-2"
-            placeholder="Web Development"
+            
             {...form.register("name")}
           />
           {form.formState.errors.name && (
@@ -186,7 +186,7 @@ export default function ProductForm(props: ProductFormProps) {
           <textarea
             className="mt-1 w-full rounded-md border px-3 py-2"
             rows={3}
-            placeholder="Pembuatan website company profile"
+            
             {...form.register("description")}
           />
           {form.formState.errors.description && (
@@ -201,7 +201,7 @@ export default function ProductForm(props: ProductFormProps) {
           <input
             type="number"
             className="mt-1 w-full rounded-md border px-3 py-2"
-            placeholder="5000000"
+            
             {...form.register("unitPrice", {
               valueAsNumber: true, // ✅ INI KUNCI FIX
             })}

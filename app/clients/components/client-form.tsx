@@ -55,7 +55,7 @@ export default function ClientForm() {
           name="name"
           required
           className="mt-1 w-full rounded-md border px-3 py-2"
-          placeholder="PT Maju Jaya"
+          
           autoComplete="off"
         />
       </div>
@@ -67,7 +67,7 @@ export default function ClientForm() {
             name="email"
             type="email"
             className="mt-1 w-full rounded-md border px-3 py-2"
-            placeholder="finance@majujaya.com"
+            
             autoComplete="off"
           />
         </div>
@@ -77,7 +77,7 @@ export default function ClientForm() {
           <input
             name="phone"
             className="mt-1 w-full rounded-md border px-3 py-2"
-            placeholder="081234567890"
+            
             autoComplete="off"
           />
         </div>
@@ -88,7 +88,7 @@ export default function ClientForm() {
         <textarea
           name="address"
           className="mt-1 w-full rounded-md border px-3 py-2 "
-          placeholder="Jakarta"
+          
           autoComplete="off"
         />
       </div>
@@ -98,7 +98,7 @@ export default function ClientForm() {
         <input
           name="paymentPreference"
           className="mt-1 w-full rounded-md border px-3 py-2"
-          placeholder="Transfer BCA"
+          
           autoComplete="off"
         />
       </div>
@@ -108,7 +108,7 @@ export default function ClientForm() {
         <textarea
           name="notes"
           className="mt-1 w-full rounded-md border px-3 py-2 "
-          placeholder="PIC: Rina"
+         
           autoComplete="off"
         />
       </div>

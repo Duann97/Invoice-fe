@@ -93,7 +93,7 @@ export default function CreateCategoryPage() {
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Misal: Produk / Jasa"
+           
             className="mt-2 h-11 w-full rounded-2xl border border-white/10 bg-black/20 px-4 text-sm text-white placeholder:text-white/40 outline-none focus:border-white/20"
           />
         </div>

@@ -137,7 +137,7 @@ export default function CreateProductPage() {
                 className="mt-1 w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-white placeholder:text-white/40 outline-none focus:border-white/20"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Web Development"
+                
               />
             </div>
 

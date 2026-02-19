@@ -1,4 +1,3 @@
-// app/invoices/invoices-client.tsx
 "use client";
 
 import Link from "next/link";
@@ -56,7 +55,6 @@ export default function InvoicesClient() {
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
 
-  // ===== URL state =====
   const page = useMemo(() => {
     const p = Number(searchParams?.get("page") || "1");
     return Number.isFinite(p) && p > 0 ? p : 1;
@@ -69,11 +67,9 @@ export default function InvoicesClient() {
 
   const q = useMemo(() => (searchParams?.get("q") || "").trim(), [searchParams]);
 
-  // input state (biar enak ngetik)
   const [searchText, setSearchText] = useState(q);
 
   useEffect(() => {
-    // sync kalau user back/forward browser
     setSearchText(q);
   }, [q]);
 
@@ -88,7 +84,22 @@ export default function InvoicesClient() {
     return sp.toString();
   };
 
-  // ===== fetch invoices =====
+  // ✅ Debounce: ketik langsung auto filter (tanpa harus klik Search)
+  useEffect(() => {
+    const nextQ = searchText.trim();
+
+    // kalau sama dengan query di URL, jangan update (hindari loop)
+    if (nextQ === q) return;
+
+    const t = setTimeout(() => {
+      const qs = buildQS({ q: nextQ, page: "1" });
+      router.replace(`/invoices?${qs}`);
+    }, 400);
+
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchText, q, router, limit, searchParams]);
+
   useEffect(() => {
     if (!token) {
       router.replace("/login");
@@ -109,16 +120,20 @@ export default function InvoicesClient() {
           headers: { Authorization: `Bearer ${token}` },
         });
 
-        // support: { message, data: [], meta } OR { message, data: {data, meta}}
         const raw = res.data?.data ?? res.data;
-        const list = Array.isArray(raw) ? raw : Array.isArray(raw?.data) ? raw.data : [];
+        const list = Array.isArray(raw)
+          ? raw
+          : Array.isArray(raw?.data)
+          ? raw.data
+          : [];
         const m = res.data?.meta ?? raw?.meta ?? null;
 
         setRows(list);
         setMeta(m);
       } catch (e: any) {
         const status = e?.response?.status;
-        const msg = e?.response?.data?.message || e?.message || "Gagal load invoices";
+        const msg =
+          e?.response?.data?.message || e?.message || "Gagal load invoices";
         setErr(msg);
 
         if (status === 401) {
@@ -134,6 +149,8 @@ export default function InvoicesClient() {
   }, [token, page, limit, q, router]);
 
   const onSearchSubmit = (e: React.FormEvent) => {
+    // masih ada supaya UI gak berubah,
+    // tapi sekarang sebenernya gak perlu dipencet karena debounce sudah jalan
     e.preventDefault();
     const nextQ = searchText.trim();
     const qs = buildQS({ q: nextQ, page: "1" });
@@ -158,13 +175,18 @@ export default function InvoicesClient() {
           <p className="mt-1 text-sm text-white/60">Kelola invoice kamu.</p>
         </div>
 
-        <Link href="/invoices/create" className="rounded-xl bg-black px-4 py-2 text-sm text-white">
+        <Link
+          href="/invoices/create"
+          className="rounded-xl bg-black px-4 py-2 text-sm text-white"
+        >
           + Create Invoice
         </Link>
       </div>
 
-      {/* ✅ SEARCH BAR */}
-      <form onSubmit={onSearchSubmit} className="mt-5 rounded-2xl border border-white/10 p-4">
+      <form
+        onSubmit={onSearchSubmit}
+        className="mt-5 rounded-2xl border border-white/10 p-4"
+      >
         <div className="grid gap-3 md:grid-cols-[1fr_auto_auto] md:items-center">
           <div>
             <label className="text-xs text-white/60">Search</label>
@@ -176,12 +198,7 @@ export default function InvoicesClient() {
             />
           </div>
 
-          <button
-            type="submit"
-            className="h-10 rounded-xl border border-white/10 bg-white/5 px-4 text-sm text-white hover:bg-white/10"
-          >
-            Search
-          </button>
+         
 
           <button
             type="button"
@@ -215,48 +232,56 @@ export default function InvoicesClient() {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-sm text-white/90">
+            <table className="table-fixed w-full text-sm text-white/90">
               <thead className="text-left text-white/60">
                 <tr className="border-b border-white/10">
-                  <th className="py-3">No</th>
-                  <th className="py-3">Client</th>
-                  <th className="py-3">Status</th>
-                  <th className="py-3 text-right">TotalDue</th>
-                  <th className="py-3 text-center">Action</th>
+                  <th className="py-3 w-14">No</th>
+                  <th className="py-3 ">Client</th>
+                  <th className="py-3 w-44">Status</th>
+                  <th className="py-3 w-44">TotalDue</th>
+                  <th className="py-3 w-28 text-right">Action</th>
                 </tr>
               </thead>
+
               <tbody>
                 {rows.map((inv, idx) => (
-                  <tr key={inv.id} className="border-b border-white/10 last:border-b-0">
-                    <td className="py-3">{(currentPage - 1) * limit + (idx + 1)}</td>
+                  <tr
+                    key={inv.id}
+                    className="border-b border-white/10 last:border-b-0"
+                  >
+                    <td className="py-3">
+                      {(currentPage - 1) * limit + (idx + 1)}
+                    </td>
 
                     <td className="py-3">
-                      <div className="font-semibold text-white">{inv.client?.name || "-"}</div>
-                      <div className="text-xs text-white/60">{inv.invoiceNumber}</div>
+                      <div className="font-semibold text-white">
+                        {inv.client?.name || "-"}
+                      </div>
+                      <div className="text-xs text-white/60">
+                        {inv.invoiceNumber}
+                      </div>
                     </td>
 
                     <td className="py-3">
                       <Badge status={inv.status} />
                     </td>
 
-                    <td className="py-3 text-right">
-                      <div className="font-semibold">Rp {formatIDR(inv.total)}</div>
-                      <div className="text-xs text-white/60">{String(inv.dueDate).slice(0, 10)}</div>
+                    <td className="py-3">
+                      <div className="font-semibold">
+                        Rp {formatIDR(inv.total)}
+                      </div>
+                      <div className="text-xs text-white/60">
+                        {String(inv.dueDate).slice(0, 10)}
+                      </div>
                     </td>
 
                     <td className="py-3">
-                      <div className="flex items-center justify-center gap-2">
+                      <div className="flex items-center justify-end">
                         <Link
                           href={`/invoices/${inv.id}`}
                           className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white hover:bg-white/10"
                         >
                           Detail
-                        </Link>
-                        <Link
-                          href={`/invoices/${inv.id}/edit`}
-                          className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white hover:bg-white/10"
-                        >
-                          Edit
                         </Link>
                       </div>
                     </td>
@@ -268,7 +293,8 @@ export default function InvoicesClient() {
             {meta ? (
               <div className="mt-4 flex items-center justify-between gap-3 text-xs text-white/60">
                 <div>
-                  Page {meta.page ?? "-"} / {meta.totalPages ?? "-"} • Total {meta.total ?? "-"}
+                  Page {meta.page ?? "-"} / {meta.totalPages ?? "-"} • Total{" "}
+                  {meta.total ?? "-"}
                 </div>
 
                 <div className="flex items-center gap-2">
@@ -281,7 +307,9 @@ export default function InvoicesClient() {
                     Prev
                   </button>
 
-                  <span className="rounded-xl bg-black px-3 py-1.5 text-white">{currentPage}</span>
+                  <span className="rounded-xl bg-black px-3 py-1.5 text-white">
+                    {currentPage}
+                  </span>
 
                   <button
                     className="rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 disabled:opacity-50"
