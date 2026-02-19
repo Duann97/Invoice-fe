@@ -38,7 +38,6 @@ export default function CreateRecurringPage() {
     frequency: "MONTHLY",
     interval: 1,
     startAt: "",
-    nextRunAt: "",
     endAt: "",
     isActive: true,
   });
@@ -118,7 +117,7 @@ export default function CreateRecurringPage() {
         isActive: Boolean(form.isActive),
       };
 
-      if (form.nextRunAt) payload.nextRunAt = new Date(form.nextRunAt).toISOString();
+      // ✅ NextRunAt dihilangkan dari UI (biar backend auto set = startAt)
       if (form.endAt) payload.endAt = new Date(form.endAt).toISOString();
 
       await api.post("/recurring", payload, { headers });
@@ -185,7 +184,9 @@ export default function CreateRecurringPage() {
               }
             >
               <option value="">
-                {form.clientId ? "Select Template Invoice" : "Select client first"}
+                {form.clientId
+                  ? "Select Template Invoice"
+                  : "Select client first"}
               </option>
 
               {filteredInvoices.map((inv) => (
@@ -202,7 +203,8 @@ export default function CreateRecurringPage() {
 
             {form.clientId && filteredInvoices.length === 0 && (
               <p className="mt-1 text-xs text-gray-500">
-                Client ini belum punya invoice. Buat invoice dulu, lalu gunakan sebagai template.
+                Client ini belum punya invoice. Buat invoice dulu, lalu gunakan
+                sebagai template.
               </p>
             )}
           </div>
@@ -245,26 +247,18 @@ export default function CreateRecurringPage() {
                 value={form.startAt}
                 onChange={(e) => setForm({ ...form, startAt: e.target.value })}
               />
+              
             </div>
 
             <div>
-              <label className="text-sm font-medium">Next Run At </label>
-              <input
-                type="datetime-local"
-                className="mt-1 w-full rounded border p-2 text-sm"
-                value={form.nextRunAt}
-                onChange={(e) => setForm({ ...form, nextRunAt: e.target.value })}
-              />
-            </div>
-
-            <div>
-              <label className="text-sm font-medium">End At </label>
+              <label className="text-sm font-medium">Stop Date (opsional)</label>
               <input
                 type="datetime-local"
                 className="mt-1 w-full rounded border p-2 text-sm"
                 value={form.endAt}
                 onChange={(e) => setForm({ ...form, endAt: e.target.value })}
               />
+              
             </div>
           </div>
 
