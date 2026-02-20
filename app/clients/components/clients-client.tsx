@@ -2,27 +2,46 @@
 
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { getClients, type ClientItem } from "@/lib/clients";
 
 export default function ClientsPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const page = Number(searchParams?.get("page") || 1);
+  const limit = Number(searchParams?.get("limit") || 10);
+
   const [loading, setLoading] = useState(true);
   const [clients, setClients] = useState<ClientItem[]>([]);
-  const [q, setQ] = useState("");
+  const [q, setQ] = useState(searchParams?.get("q") || "");
+  const [meta, setMeta] = useState<any>(null);
 
-  const fetchData = useCallback(async (keyword?: string) => {
-    setLoading(true);
-    try {
-      const data = await getClients(keyword);
-      const items = Array.isArray(data) ? data : data.items;
-      setClients(items || []);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const fetchData = useCallback(
+    async (keyword?: string, nextPage?: number) => {
+      setLoading(true);
+      try {
+        const data = await getClients({
+          q: keyword,
+          page: nextPage ?? page,
+          limit,
+        });
+
+        const items = Array.isArray(data) ? data : data.items;
+        const m = Array.isArray(data) ? null : (data as any).meta ?? null;
+
+        setClients(items || []);
+        setMeta(m);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [page, limit]
+  );
 
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+    fetchData(q.trim() || undefined, page);
+  }, [fetchData, page]); // q sudah di-handle debounce
 
   // ✅ Debounce search: ketik langsung filter (tanpa harus klik Search)
   const firstRun = useRef(true);
@@ -34,13 +53,42 @@ export default function ClientsPage() {
     }
 
     const t = setTimeout(() => {
-      fetchData(q.trim() || undefined);
+      const keyword = q.trim() || undefined;
+
+      // reset page ke 1 ketika search berubah (pagination pattern kayak invoices)
+      const sp = new URLSearchParams(searchParams?.toString() || "");
+      if (keyword) sp.set("q", keyword);
+      else sp.delete("q");
+      sp.set("page", "1");
+      if (!sp.get("limit")) sp.set("limit", String(limit));
+
+      router.push(`/clients?${sp.toString()}`);
+
+      // fetch page 1
+      fetchData(keyword, 1);
     }, 400);
 
     return () => clearTimeout(t);
-  }, [q, fetchData]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [q]);
 
   const filteredCount = useMemo(() => clients.length, [clients]);
+
+  const canPrev = (meta?.page ?? page) > 1;
+  const totalPages = meta?.totalPages ?? 1;
+  const canNext = (meta?.page ?? page) < totalPages;
+
+  const goPage = (nextPage: number) => {
+    const sp = new URLSearchParams(searchParams?.toString() || "");
+    if (q.trim()) sp.set("q", q.trim());
+    else sp.delete("q");
+
+    sp.set("page", String(nextPage));
+    sp.set("limit", String(limit));
+
+    router.push(`/clients?${sp.toString()}`);
+    fetchData(q.trim() || undefined, nextPage);
+  };
 
   return (
     <div className="min-h-screen px-6 py-8">
@@ -69,7 +117,6 @@ export default function ClientsPage() {
               className="w-full rounded-md border px-3 py-2 text-sm"
               placeholder="Search name / email / phone..."
             />
-           
           </div>
 
           <div className="text-sm text-gray-600">
@@ -119,6 +166,31 @@ export default function ClientsPage() {
                 ))}
               </tbody>
             </table>
+
+            {/* ✅ ONLY ADD: pagination bar (style netral, ga ganggu table) */}
+            <div className="flex items-center justify-between px-4 py-3 border-t bg-white">
+              <div className="text-xs text-gray-600">
+                Page {meta?.page ?? page} / {totalPages} • Total{" "}
+                {meta?.total ?? "-"}
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  className="rounded-lg border px-3 py-1.5 text-xs font-medium disabled:opacity-50"
+                  disabled={!canPrev}
+                  onClick={() => goPage((meta?.page ?? page) - 1)}
+                >
+                  Prev
+                </button>
+                <button
+                  className="rounded-lg border px-3 py-1.5 text-xs font-medium disabled:opacity-50"
+                  disabled={!canNext}
+                  onClick={() => goPage((meta?.page ?? page) + 1)}
+                >
+                  Next
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </div>

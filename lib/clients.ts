@@ -25,10 +25,21 @@ export type ClientListResponse =
   | { items: ClientItem[]; meta?: any }
   | ClientItem[];
 
-export const getClients = async (q?: string) => {
+// ✅ ONLY ADD: params object (page, limit) + tetap support signature lama getClients(q?: string)
+export const getClients = async (
+  qOrParams?: string | { q?: string; page?: number; limit?: number }
+) => {
+  const params =
+    typeof qOrParams === "string"
+      ? qOrParams
+        ? { q: qOrParams }
+        : undefined
+      : qOrParams;
+
   const res = await api.get<ClientListResponse>("/clients", {
-    params: q ? { q } : undefined,
+    params: params && Object.keys(params).length ? params : undefined,
   });
+
   return res.data;
 };
 

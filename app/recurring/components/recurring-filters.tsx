@@ -20,8 +20,8 @@ export default function RecurringFilters() {
         <label className="text-sm">Active</label>
         <select
           className="block rounded border px-3 py-2 text-sm"
-          value={searchParams?.get("isActive") || ""}
-          onChange={(e) => setParam("isActive", e.target.value)}
+          value={searchParams?.get("active") || ""}
+          onChange={(e) => setParam("active", e.target.value)}
         >
           <option value="">All</option>
           <option value="true">Active</option>

@@ -16,6 +16,14 @@ function parseBool(v: string | null) {
   return v === "true" || v === "1" || v === "yes";
 }
 
+function normalizeProducts(data: any): { items: Product[]; meta?: any } {
+  if (Array.isArray(data)) return { items: data };
+  if (Array.isArray(data?.items)) return { items: data.items, meta: data.meta };
+  if (Array.isArray(data?.data?.items))
+    return { items: data.data.items, meta: data.data.meta };
+  return { items: [] };
+}
+
 export default function ProductsClientPage() {
   const router = useRouter();
   const sp = useSearchParams();
@@ -24,8 +32,13 @@ export default function ProductsClientPage() {
   const categoryId = sp.get("categoryId") ?? "";
   const includeDeleted = parseBool(sp.get("includeDeleted"));
 
+  // ✅ ONLY ADD: page/limit from URL (pattern invoice)
+  const page = Number(sp.get("page") || 1);
+  const limit = Number(sp.get("limit") || 10);
+
   const [categories, setCategories] = useState<Category[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
+  const [meta, setMeta] = useState<any>(null);
 
   const [loading, setLoading] = useState(true);
   const [errMsg, setErrMsg] = useState<string | null>(null);
@@ -34,6 +47,8 @@ export default function ProductsClientPage() {
     q?: string;
     categoryId?: string;
     includeDeleted?: boolean;
+    page?: number;
+    limit?: number;
   }) => {
     const params = new URLSearchParams(sp.toString());
 
@@ -41,17 +56,28 @@ export default function ProductsClientPage() {
       const val = next.q.trim();
       if (!val) params.delete("q");
       else params.set("q", val);
+      // ✅ reset page when filter changes
+      params.set("page", "1");
     }
 
     if (next.categoryId !== undefined) {
       if (!next.categoryId) params.delete("categoryId");
       else params.set("categoryId", next.categoryId);
+      params.set("page", "1");
     }
 
     if (next.includeDeleted !== undefined) {
       if (next.includeDeleted) params.set("includeDeleted", "true");
       else params.delete("includeDeleted");
+      params.set("page", "1");
     }
+
+    if (next.page !== undefined) params.set("page", String(next.page));
+    if (next.limit !== undefined) params.set("limit", String(next.limit));
+
+    // ensure defaults exist
+    if (!params.get("page")) params.set("page", "1");
+    if (!params.get("limit")) params.set("limit", "10");
 
     const qs = params.toString();
     router.replace(qs ? `/products?${qs}` : "/products");
@@ -71,8 +97,15 @@ export default function ProductsClientPage() {
       if (categoryId) params.categoryId = categoryId;
       if (includeDeleted) params.includeDeleted = true;
 
-      const res = await api.get<Product[]>("/products", { params });
-      setProducts(res.data);
+      // ✅ ONLY ADD: pagination params
+      params.page = page;
+      params.limit = limit;
+
+      const res = await api.get("/products", { params });
+      const normalized = normalizeProducts(res.data);
+
+      setProducts(normalized.items);
+      setMeta(normalized.meta ?? null);
     } catch (e: any) {
       const msg =
         e?.response?.data?.message || e?.message || "Gagal load products.";
@@ -96,7 +129,7 @@ export default function ProductsClientPage() {
   useEffect(() => {
     fetchProducts();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [q, categoryId, includeDeleted]);
+  }, [q, categoryId, includeDeleted, page, limit]);
 
   const onRefresh = () => fetchProducts();
 
@@ -118,16 +151,18 @@ export default function ProductsClientPage() {
     return { active, deleted, total: products.length };
   }, [products]);
 
+  const totalPages = meta?.totalPages ?? 1;
+  const canPrev = (meta?.page ?? page) > 1;
+  const canNext = (meta?.page ?? page) < totalPages;
+
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-8">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold">Products / Services</h1>
-          
         </div>
 
         <div className="flex items-center gap-2">
-          
           <Link
             href="/products/create"
             className="rounded-xl bg-black px-4 py-2 text-sm font-semibold text-white hover:opacity-90"
@@ -174,6 +209,33 @@ export default function ProductsClientPage() {
           onSoftDelete={onSoftDelete}
         />
       </div>
+
+      {/* ✅ ONLY ADD: pagination bar */}
+      {meta ? (
+        <div className="mt-4 flex items-center justify-between rounded-xl border bg-white px-4 py-3 text-xs text-gray-600">
+          <div>
+            Page {meta.page ?? page} / {meta.totalPages ?? "-"} • Total{" "}
+            {meta.total ?? "-"}
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              className="rounded-lg border px-3 py-1.5 text-xs font-medium disabled:opacity-50"
+              disabled={!canPrev}
+              onClick={() => setParams({ page: (meta?.page ?? page) - 1 })}
+            >
+              Prev
+            </button>
+            <button
+              className="rounded-lg border px-3 py-1.5 text-xs font-medium disabled:opacity-50"
+              disabled={!canNext}
+              onClick={() => setParams({ page: (meta?.page ?? page) + 1 })}
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

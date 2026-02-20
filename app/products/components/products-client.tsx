@@ -45,6 +45,9 @@ export default function ProductsPage() {
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
 
+  // ✅ ONLY ADD: meta state for pagination
+  const [meta, setMeta] = useState<any>(null);
+
   const qs = useMemo(() => {
     const sp = new URLSearchParams(searchParams?.toString() || "");
     if (!sp.get("limit")) sp.set("limit", "10");
@@ -74,6 +77,14 @@ export default function ProductsPage() {
 
       const list = normalizeList<ProductRow>(pRes.data);
       setRows(list);
+
+      // ✅ ONLY ADD: normalize meta from response
+      const m =
+        pRes.data?.meta ??
+        pRes.data?.data?.meta ??
+        pRes.data?.data?.data?.meta ??
+        null;
+      setMeta(m);
 
       const cats = normalizeList<Category>(cRes.data);
       setCategories(cats);
@@ -139,6 +150,12 @@ export default function ProductsPage() {
       setErr(e?.response?.data?.message || e?.message || "Gagal delete product");
     }
   };
+
+  // ✅ ONLY ADD: page helpers
+  const currentPage = Number(qs.get("page") || 1);
+  const totalPages = meta?.totalPages ?? 1;
+  const canPrev = currentPage > 1;
+  const canNext = currentPage < totalPages;
 
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-8">
@@ -246,11 +263,16 @@ export default function ProductsPage() {
 
             <tbody>
               {rows.map((p) => (
-                <tr key={p.id} className="border-b border-white/10 last:border-b-0">
+                <tr
+                  key={p.id}
+                  className="border-b border-white/10 last:border-b-0"
+                >
                   <td className="py-3 px-4">
                     <div className="font-semibold">{p.name}</div>
                     {p.description ? (
-                      <div className="mt-1 text-xs text-white/60">{p.description}</div>
+                      <div className="mt-1 text-xs text-white/60">
+                        {p.description}
+                      </div>
                     ) : null}
                   </td>
 
@@ -283,6 +305,36 @@ export default function ProductsPage() {
             </tbody>
           </table>
         )}
+
+        {/* ✅ ONLY ADD: pagination footer */}
+        {meta ? (
+          <div className="flex items-center justify-between border-t border-white/10 px-4 py-3 text-xs text-white/70">
+            <div>
+              Page {meta.page ?? currentPage} / {meta.totalPages ?? "-"} • Total{" "}
+              {meta.total ?? "-"}
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                className="rounded-xl border border-white/15 px-3 py-2 text-xs text-white/90 disabled:opacity-50"
+                disabled={!canPrev}
+                onClick={() =>
+                  onChangeQuery((sp) => sp.set("page", String(currentPage - 1)))
+                }
+              >
+                Prev
+              </button>
+              <button
+                className="rounded-xl border border-white/15 px-3 py-2 text-xs text-white/90 disabled:opacity-50"
+                disabled={!canNext}
+                onClick={() =>
+                  onChangeQuery((sp) => sp.set("page", String(currentPage + 1)))
+                }
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        ) : null}
       </div>
     </div>
   );

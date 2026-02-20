@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 import { api } from "@/lib/api";
 import { clearToken, getToken } from "@/lib/auth";
-import type { Payment } from "../schema"
+import type { Payment } from "../schema";
 
 function toNumber(v: any) {
   const n = typeof v === "string" ? Number(v) : v;
@@ -76,6 +76,22 @@ export default function PaymentsPage() {
     run();
   }, [token, qs, router]);
 
+  // ✅ ONLY ADD: pagination helpers + navigation
+  const spObj = useMemo(
+    () => new URLSearchParams(searchParams?.toString() || ""),
+    [searchParams]
+  );
+  const page = Number(spObj.get("page") || 1);
+  const limit = Number(spObj.get("limit") || 10);
+  const totalPages = meta?.totalPages ?? 1;
+
+  const goPage = (nextPage: number) => {
+    const sp2 = new URLSearchParams(searchParams?.toString() || "");
+    sp2.set("page", String(nextPage));
+    sp2.set("limit", String(limit));
+    router.push(`/payments?${sp2.toString()}`);
+  };
+
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-8">
       <div className="flex items-center justify-between gap-3">
@@ -119,8 +135,6 @@ export default function PaymentsPage() {
                   <th className="py-2">Paid At</th>
                   <th className="py-2">Invoice</th>
                   <th className="py-2 text-right">Amount</th>
-                  
-                  
                 </tr>
               </thead>
               <tbody>
@@ -128,7 +142,10 @@ export default function PaymentsPage() {
                   <tr key={p.id} className="border-b last:border-b-0">
                     <td className="py-2">{String(p.paidAt).slice(0, 10)}</td>
                     <td className="py-2">
-                      <Link href={`/invoices/${p.invoiceId}`} className="underline">
+                      <Link
+                        href={`/invoices/${p.invoiceId}`}
+                        className="underline"
+                      >
                         {p.invoiceId.slice(0, 10)}...
                       </Link>
                     </td>
@@ -143,9 +160,29 @@ export default function PaymentsPage() {
             </table>
 
             {meta ? (
-              <div className="mt-4 text-xs text-gray-600">
-                Page {meta.page ?? "-"} / {meta.totalPages ?? "-"} • Total{" "}
-                {meta.total ?? "-"}
+              <div className="mt-4 flex items-center justify-between text-xs text-gray-600">
+                <div>
+                  Page {meta.page ?? page} / {meta.totalPages ?? "-"} • Total{" "}
+                  {meta.total ?? "-"}
+                </div>
+
+                {/* ✅ ONLY ADD: Prev/Next */}
+                <div className="flex items-center gap-2">
+                  <button
+                    className="rounded-lg border px-3 py-1.5 text-xs font-medium disabled:opacity-50"
+                    disabled={(meta.page ?? page) <= 1}
+                    onClick={() => goPage((meta.page ?? page) - 1)}
+                  >
+                    Prev
+                  </button>
+                  <button
+                    className="rounded-lg border px-3 py-1.5 text-xs font-medium disabled:opacity-50"
+                    disabled={(meta.page ?? page) >= totalPages}
+                    onClick={() => goPage((meta.page ?? page) + 1)}
+                  >
+                    Next
+                  </button>
+                </div>
               </div>
             ) : null}
           </div>
